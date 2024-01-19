@@ -18,9 +18,21 @@ class LinkController extends Controller
     {
         
         $links = Link::with('user')->latest()->get();
+        $most = Link::orderBy('visits', 'DESC')->take(5)->get();
+
+        $sum = Link::sum('visits');
+
+        if(isset($most)) {
+            foreach($most as $k => $row) {
+                if($sum != 0) {
+                    $row->percent =  floatval($row->visits) / (floatval($sum) * 100);
+                }
+            }
+        }
 
         return response()->json([
-            "links" => $links
+            "links" => $links,
+            "most" => $most,
         ]);
     }
 
@@ -42,7 +54,9 @@ class LinkController extends Controller
      */
     public function store(Request $request)
     {
-       
+        $this->validate($request, [
+            'short' => 'unique:links, short',
+        ]);
         
         $link = new Link;
         $link->long = $request->long;
@@ -132,4 +146,6 @@ class LinkController extends Controller
         $link->increment('visits');
         return redirect($link->long);
     }
+
+    
 }

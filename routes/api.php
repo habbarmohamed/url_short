@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
+Route::get('most_visited', [LinkController::class, 'mostVisited']);
 
 Route::apiResources([
     '/link' => LinkController::class,

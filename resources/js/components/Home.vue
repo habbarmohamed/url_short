@@ -28,9 +28,82 @@
             <div class="mt-5">
                 <h2>Saved Shortened URLs:</h2>
                 <div class="d-flex justify-content-end my-2">
-                    <a href="javascript:void(0)" @click="refresh" class="btn btn-outline-primary">
+                    <a href="javascript:void(0)" @click="refresh" class="btn btn-outline-primary mx-1">
                         Refresh
                     </a>
+                    <!--  Modal trigger button  -->
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalId"
+                    >
+                        Stats
+                    </button>
+                    
+                    <!-- Modal Body-->
+                    <div
+                        class="modal fade"
+                        id="modalId"
+                        tabindex="-1"
+                        role="dialog"
+                        aria-labelledby="modalTitleId"
+                        aria-hidden="true"
+                    >
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalTitleId">
+                                        Most visited
+                                    </h5>
+                                    <button
+                                        type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"
+                                        aria-label="Close"
+                                    ></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="container-fluid">
+                                        <!-- Horizontal under breakpoint -->
+                                        <ul
+                                            class="list-group list-group-vertical"
+                                        >
+                                            <li class="list-group-item" v-for="(item, j) in most" :key="j">
+                                                <div class="progress">
+                                                    <span class="badge bg-info me-1">{{ item.visits }}</span>
+                                                    <div
+                                                        class="progress-bar bg-info"
+                                                        role="progressbar"
+                                                        :aria-valuenow="item.visits"
+                                                        :style="'width:' + item.percent * 10000 + '%'"
+                                                        aria-valuemin="0"
+                                                        aria-valuemax="100"
+                                                    >
+                                                        {{ item.long }}
+                                                    </div>
+                                                </div>
+                                                <small>{{ item.long }}</small>
+                                                
+                                            </li>
+                                        </ul>
+                                        
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button
+                                        type="button"
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal"
+                                    >
+                                        Close
+                                    </button>
+                                    <button type="button" class="btn btn-primary">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                 </div>
 
                 <table class="table table-bordered">
@@ -50,6 +123,11 @@
                                         <button type="button" @click="copy(row.short)" class="btn btn-link btn-sm">
                                             copy
                                         </button>
+                                    </span>
+                                    <span>
+                                        <a :href="`/visit/${row.short}`" target="_blank" class="btn btn-link btn-sm">
+                                            view
+                                        </a>
                                     </span>
                                 </td>
                                 <td>
@@ -74,7 +152,7 @@
 import axios from 'axios';
 
 export default {
-    name : 'AddAttributeComponent',
+    name : 'Home',
     data () {
         return {
             loaded : true, 
@@ -82,7 +160,8 @@ export default {
             long : '',
             old_short : null,
 
-            links: null
+            links: null,
+            most: null,
         }
     },
     computed : {
@@ -96,15 +175,10 @@ export default {
         },
 
         loadData() {
-            axios.get('/api/link', 
-            // {
-            // headers: {
-            //       Authorization: 'Bearer ' + this.currentUser.token,
-            //     }
-            // }
-            )
+            axios.get('/api/link')
             .then((res) => {
                 this.links = res.data.links;
+                this.most = res.data.most;
                 this.loaded = false;
             })
             .catch((error) => {
@@ -112,19 +186,14 @@ export default {
             })  
         },
 
+
         store (e) { 
             e.preventDefault();
             let self = this;
                 let request = {
                     long : self.long,
                 };
-                axios.post('/api/link', request, 
-                // {
-                //     headers: {
-                //         Authorization: 'Bearer ' + self.currentUser.token,
-                //     }
-                // }
-                )
+                axios.post('/api/link', request)
                 .then((res) => {
                     this.shorten = true;
                     this.old_short = res.data.data.short;
