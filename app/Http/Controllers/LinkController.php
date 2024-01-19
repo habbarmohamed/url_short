@@ -129,6 +129,7 @@ class LinkController extends Controller
     public function shortLink($short)
     {
         $link = Link::where('short', $short)->first();
+        $link->increment('visits');
         return redirect($link->long);
     }
 }

@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // });
 
+
 Route::apiResources([
     '/link' => LinkController::class,
 ]);

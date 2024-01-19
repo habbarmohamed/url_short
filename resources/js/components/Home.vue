@@ -18,23 +18,26 @@
             <div id="shortenedURLContainer" class="mt-3" v-if="shorten">
                 <h2>Shortened URL:</h2>
                 <div class="input-group">
-                <input type="text" id="shortenedURL" class="form-control" readonly>
+                <input type="text" id="shortenedURL" v-model="old_short" class="form-control" v-on:focus="$event.target.select()" ref="clone" readonly>
                 <div class="input-group-append">
-                    <button id="copyButton" class="btn btn-secondary">Copy</button>
+                    <button id="copyButton" class="btn btn-secondary" @click="copy(old_short)">Copy</button>
                 </div>
                 </div>
             </div>
             <!-- Container to display the saved shortened URLs -->
             <div class="mt-5">
                 <h2>Saved Shortened URLs:</h2>
-                <FontAwesomeIcon icon="fas fa-user" size="2xl" />
+                <div class="d-flex justify-content-end my-2">
+                    <a href="javascript:void(0)" @click="refresh" class="btn btn-outline-primary">
+                        Refresh
+                    </a>
+                </div>
 
                 <table class="table table-bordered">
                     <thead>
                         <tr>
                             <th>Shortened URL</th>
                             <th>Full URL</th>
-                            <th>Website</th>
                             <th>Visits</th>
                             <th>Date Time</th>
                         </tr>
@@ -44,18 +47,16 @@
                                 <td>
                                     <span>{{  row.short }}</span>
                                     <span>
-                                        <a href="javascript:void(0)" class="btn btn-link">
-                                        </a>
+                                        <button type="button" @click="copy(row.short)" class="btn btn-link btn-sm">
+                                            copy
+                                        </button>
                                     </span>
                                 </td>
                                 <td>
                                     {{  row.long }}
                                 </td>
                                 <td>
-                                    
-                                </td>
-                                <td>
-                                    0
+                                    {{  row.visits }}
                                 </td>
                                 <td>
                                     {{  getDate(row.created_at) + ' ' + getTime(row.created_at) }}
@@ -79,6 +80,7 @@ export default {
             loaded : true, 
             shorten : false, 
             long : '',
+            old_short : null,
 
             links: null
         }
@@ -124,6 +126,8 @@ export default {
                 // }
                 )
                 .then((res) => {
+                    this.shorten = true;
+                    this.old_short = res.data.data.short;
                     this.clear();
                     this.loadData();
                 })
@@ -142,6 +146,15 @@ export default {
                 let time = new Date(datetime).toLocaleTimeString();
                 return time 
         },
+
+        copy(short) {
+            navigator.clipboard.writeText(`127.0.0.1:8000/visit/${short}`);
+            alert('copied');
+        },
+
+        refresh() {
+            this.loadData();
+        }
     },
     mounted() {
         this.loadData();

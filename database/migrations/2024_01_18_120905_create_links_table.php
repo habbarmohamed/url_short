@@ -19,7 +19,7 @@ class CreateLinksTable extends Migration
             $table->foreign('user_id')->references('id')->on('users');
             $table->string('short')->nullable();
             $table->string('long')->nullable();
-            $table->integer('visits')->nullable();
+            $table->integer('visits')->nullable()->default(0);
             $table->timestamps();
         });
     }
