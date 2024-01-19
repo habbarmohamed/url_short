@@ -197,7 +197,7 @@ export default {
                 .then((res) => {
                     this.shorten = true;
                     this.old_short = res.data.data.short;
-                    this.clear();
+                    this.clear(); 
                     this.loadData();
                 })
                 .catch((error) => {
